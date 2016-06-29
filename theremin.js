@@ -14,24 +14,36 @@
 	var canvas = document.getElementById('visualizer');
 	// canvas.setAttribute('width',intendedWidth);
 
+	var drawVisual;
 	var canvasCtx = canvas.getContext("2d");
 	WIDTH = canvas.width;
-  	HEIGHT = canvas.height;
-	var drawVisual;
+  HEIGHT = canvas.height;
 
-	analyser.fftSize = 2048;
+
+
 	var bufferLength = analyser.frequencyBinCount;
 	var dataArray = new Uint8Array(bufferLength);
+
+	analyser.fftSize = 2048;
 	analyser.getByteTimeDomainData(dataArray);
 
 	// Sounds
 	var oscillator = window.audioContext.createOscillator();
 	var gain = window.audioContext.createGain();
+
 	gain.gain.value = 0;
+	gain.connect(window.audioContext.destination);
 
 	oscillator.connect(gain);
-	gain.connect(window.audioContext.destination);
-	oscillator.noteOn(0);
+
+
+
+	if (oscillator.start) {
+		oscillator.start(0);
+	}
+	else {
+	  oscillator.noteOn(0);
+	}
 
 
 	// var mouse = { x: 0, y: 0 };
@@ -40,7 +52,7 @@
 	function update(hands) {
 		hands.forEach(function(hand, index) {
 			var normalizedPoint = iBox.normalizePoint(hand.palmPosition, true);
-			if(hand.type == "left") { 
+			if(hand.type == "left") {
 		    	oscillator.frequency.value = Math.pow(normalizedPoint[1], 2) * (3520 - 44) + 44;
 		    	leftOutput.innerHTML = 'Pitch:' + normalizedPoint[1]
 			}
@@ -85,7 +97,7 @@
 	  	canvasCtx.lineTo(canvas.width, canvas.height/2);
 	  	canvasCtx.stroke();
     };
-	
+
 
 	// theremin.addEventListener('mousemove', function (event) {
 	//     mouse.x = (event.pageX - theremin.offsetLeft) / 500;
@@ -98,7 +110,7 @@
 	//     update();
 	// });
 
-	
+
 
 	Leap.loop(function (frame) {
     	iBox = frame.interactionBox;
@@ -110,5 +122,3 @@
 	draw();
 
 }());
-
-
